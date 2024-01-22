@@ -11,7 +11,7 @@ kotlin {
     androidTarget {
         compilations.all {
             kotlinOptions {
-                jvmTarget = "1.8"
+                jvmTarget = "17"
             }
         }
     }
@@ -32,15 +32,22 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
+            implementation ("com.google.accompanist:accompanist-systemuicontroller:0.31.3-beta")
         }
         commonMain.dependencies {
             implementation(compose.runtime)
-            implementation(compose.foundation)
+            api(compose.foundation)
+            api(compose.animation)
             implementation(compose.material)
+            api(compose.materialIconsExtended)
             implementation(compose.ui)
             @OptIn(ExperimentalComposeLibrary::class)
             implementation(compose.components.resources)
 
+            //Navigation PreCompose
+            api("moe.tlaster:precompose:1.5.10")
+            //Viewmodel
+            api("moe.tlaster:precompose-viewmodel:1.5.10")
 
         }
         iosMain.dependencies {
@@ -75,11 +82,20 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+    kotlin {
+        jvmToolchain(17)
     }
     dependencies {
         debugImplementation(libs.compose.ui.tooling)
+    }
+    buildFeatures {
+        compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.6"
     }
 }
 
