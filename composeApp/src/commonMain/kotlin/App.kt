@@ -95,8 +95,7 @@ fun App(configDevice: CrossConfigDevice? = null) {
                             )
                         }
                     }
-                }
-            ) {
+                }) {
                Navigation(navigator)
             }
         }
