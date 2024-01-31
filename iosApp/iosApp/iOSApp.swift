@@ -1,8 +1,13 @@
 import SwiftUI
+import ComposeApp
 
 @main
 struct iOSApp: App {
-
+    
+    init() {
+        MainViewControllerKt.doInitKoin()
+    }
+    
     @Environment(\.scenePhase) private var scenePhase
 
     @State var isDarkMode: Bool = UITraitCollection.current.userInterfaceStyle == .dark
