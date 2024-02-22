@@ -47,7 +47,7 @@ fun ExpensesItemPreview() {
 @Composable
 fun ExpenseScreenPreview() {
     ExpensesScreen(
-        uiState = ExpensesUiState(
+        uiState = ExpensesUiState.Success(
             expenses = ExpenseManager.fakeExpenseList,
             total = 1052.2
         ), onExpenseClick = {})
@@ -57,5 +57,9 @@ fun ExpenseScreenPreview() {
 @Preview(showBackground = true)
 @Composable
 fun ExpenseAmountPreview() {
-    ExpenseAmount(priceContent = 12.0, onPriceChange = {}, keyboardController = LocalSoftwareKeyboardController.current)
+    ExpenseAmount(
+        priceContent = 12.0,
+        onPriceChange = {},
+        keyboardController = LocalSoftwareKeyboardController.current
+    )
 }

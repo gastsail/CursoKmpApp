@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.House
 import androidx.compose.material.icons.filled.PartyMode
 import androidx.compose.material.icons.filled.ViewCozy
 import androidx.compose.ui.graphics.vector.ImageVector
+import kotlinx.serialization.Serializable
 
 data class Expense(
     val id:Long = -1,
@@ -18,6 +19,14 @@ data class Expense(
 ) {
     val icon = category.icon
 }
+
+@Serializable
+data class NetworkExpense(
+    val id:Long = -1,
+    val amount: Double,
+    val categoryName: String,
+    val description: String
+)
 
 enum class ExpenseCategory(val icon: ImageVector) {
     GROCERIES(Icons.Default.FoodBank),
