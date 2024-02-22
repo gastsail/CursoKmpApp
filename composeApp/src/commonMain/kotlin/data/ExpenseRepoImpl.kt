@@ -5,12 +5,17 @@ import domain.ExpenseRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.put
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import model.Expense
 import model.ExpenseCategory
 import model.NetworkExpense
 
 //Cambiar ip a la de nuestra máquina corriendo el servidor, ipv4
-private const val BASE_URL = "http://192.168.0.106:8080"
+private const val BASE_URL = "http://192.168.1.106:8080"
 
 class ExpenseRepoImpl(
     private val appDatabase: AppDatabase,
@@ -46,7 +51,7 @@ class ExpenseRepoImpl(
         }
     }
 
-    override fun addExpense(expense: Expense) {
+    override suspend fun addExpense(expense: Expense) {
         queries.transaction {
             queries.insert(
                 amount = expense.amount,
@@ -54,9 +59,17 @@ class ExpenseRepoImpl(
                 description = expense.description
             )
         }
+        httpClient.post("$BASE_URL/expenses") {
+            contentType(ContentType.Application.Json)
+            setBody(NetworkExpense(
+                amount = expense.amount,
+                categoryName = expense.category.name,
+                description = expense.description
+            ))
+        }
     }
 
-    override fun editExpense(expense: Expense) {
+    override suspend fun editExpense(expense: Expense) {
         queries.transaction {
             queries.update(
                 id = expense.id,
@@ -64,6 +77,15 @@ class ExpenseRepoImpl(
                 categoryName = expense.category.name,
                 description = expense.description
             )
+        }
+        httpClient.put("$BASE_URL/expenses/${expense.id}") {
+            contentType(ContentType.Application.Json)
+            setBody(NetworkExpense(
+                id = expense.id,
+                amount = expense.amount,
+                categoryName = expense.category.name,
+                description = expense.description
+            ))
         }
     }
 
@@ -76,5 +98,4 @@ class ExpenseRepoImpl(
     override fun deleteExpense(expense: Expense): List<Expense> {
         TODO("Not yet implemented")
     }
-
 }

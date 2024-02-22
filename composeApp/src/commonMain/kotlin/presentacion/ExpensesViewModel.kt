@@ -1,10 +1,8 @@
 package presentacion
 
 import domain.ExpenseRepository
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import model.Expense
 import model.ExpenseCategory
@@ -21,49 +19,66 @@ class ExpensesViewModel(private val repo: ExpenseRepository) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ExpensesUiState>(ExpensesUiState.Loading)
     val uiState = _uiState.asStateFlow()
-    private var allExpenses: MutableList<Expense> = mutableListOf()
 
     init {
-        getAllExpenses()
+        getExpenseList()
     }
 
-    private fun updateExpenseList() {
+    private fun getExpenseList() {
         viewModelScope.launch {
             try {
-                allExpenses = repo.getAllExpenses().toMutableList()
-                //delay(5000) Only used to see circular progress in iOS since its a local API and its fast.
-                updateState(ExpensesUiState.Success(allExpenses, allExpenses.sumOf { it.amount }))
+                val expenses = repo.getAllExpenses()
+                _uiState.value = ExpensesUiState.Success(expenses, expenses.sumOf { it.amount })
             } catch (e: Exception) {
-                updateState(ExpensesUiState.Error(e.message ?: "Unknown error occurred"))
+                _uiState.value = ExpensesUiState.Error(e.message ?: "Unknown error occurred")
             }
         }
     }
 
-    private fun getAllExpenses() {
-        updateExpenseList()
+    private suspend fun updateExpenseList() {
+        try {
+            val expenses = repo.getAllExpenses()
+            _uiState.value = ExpensesUiState.Success(expenses, expenses.sumOf { it.amount })
+        } catch (e: Exception) {
+            _uiState.value = ExpensesUiState.Error(e.message ?: "Unknown error occurred")
+        }
     }
 
     fun addExpense(expense: Expense) {
-        repo.addExpense(expense)
-        updateExpenseList()
+        viewModelScope.launch {
+            try {
+                repo.addExpense(expense)
+                updateExpenseList()
+            } catch (e: Exception) {
+                _uiState.value = ExpensesUiState.Error(e.message ?: "Unknown error occurred")
+            }
+        }
     }
 
     fun editExpense(expense: Expense) {
-        repo.editExpense(expense)
-        updateExpenseList()
+        viewModelScope.launch {
+            try {
+                repo.editExpense(expense)
+                updateExpenseList()
+            } catch (e: Exception) {
+                _uiState.value = ExpensesUiState.Error(e.message ?: "Unknown error occurred")
+            }
+        }
     }
 
     fun deleteExpense(expense: Expense) {
-        repo.deleteExpense(expense)
-        updateExpenseList()
+        viewModelScope.launch {
+            try {
+                repo.deleteExpense(expense)
+                updateExpenseList()
+            } catch (e: Exception) {
+                _uiState.value = ExpensesUiState.Error(e.message ?: "Unknown error occurred")
+            }
+        }
     }
 
-    private fun updateState(state: ExpensesUiState) {
-        _uiState.value = state
-    }
-
-    fun getExpenseWithID(id: Long): Expense {
-        return allExpenses.first { it.id == id }
+    fun getExpenseWithID(id: Long): Expense? {
+        return (_uiState.value as? ExpensesUiState.Success)?.expenses?.firstOrNull { it.id == id }
     }
 
     fun getCategories(): List<ExpenseCategory> {
