@@ -9,6 +9,7 @@ import model.Expense
 import model.ExpenseCategory
 import model.NetworkExpense
 
+//Cambiar ip a la de nuestra máquina corriendo el servidor, ipv4
 private const val BASE_URL = "http://192.168.0.106:8080"
 
 class ExpenseRepoImpl(
