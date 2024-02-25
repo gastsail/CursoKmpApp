@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -18,6 +19,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -39,20 +42,47 @@ fun ExpensesScreen(uiState: ExpensesUiState, onExpenseClick: (expense: Expense) 
 
     val colors = getColorsTheme()
 
-    LazyColumn(
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        stickyHeader {
-            Column(modifier = Modifier.background(colors.backgroundColor)) {
-                ExpensesTotalHeader(uiState.total)
-                AllExpensesHeader()
+    when (uiState) {
+        is ExpensesUiState.Loading -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
             }
         }
-        items(uiState.expenses) { expense ->
-            ExpensesItem(expense = expense, onExpenseClick = onExpenseClick)
+
+        is ExpensesUiState.Success -> {
+            LazyColumn(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                stickyHeader {
+                    Column(modifier = Modifier.background(colors.backgroundColor)) {
+                        ExpensesTotalHeader(uiState.total)
+                        AllExpensesHeader()
+                    }
+                }
+                items(uiState.expenses) { expense ->
+                    ExpensesItem(expense = expense, onExpenseClick = onExpenseClick)
+                }
+            }
+        }
+
+        is ExpensesUiState.Error -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Error: ${uiState.message}",
+                    style = MaterialTheme.typography.body1
+                )
+            }
         }
     }
+
+
 }
 
 @Composable
