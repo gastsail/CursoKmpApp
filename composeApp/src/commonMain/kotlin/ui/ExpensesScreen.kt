@@ -30,15 +30,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import getColorsTheme
 import model.Expense
 import presentacion.ExpensesUiState
+import utils.SwipeToDeleteContainer
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ExpensesScreen(uiState: ExpensesUiState, onExpenseClick: (expense: Expense) -> Unit) {
+fun ExpensesScreen(
+    uiState: ExpensesUiState,
+    onExpenseClick: (expense: Expense) -> Unit,
+    onDeleteExpense: (expense: Expense) -> Unit
+) {
 
     val colors = getColorsTheme()
 
@@ -53,18 +59,37 @@ fun ExpensesScreen(uiState: ExpensesUiState, onExpenseClick: (expense: Expense) 
         }
 
         is ExpensesUiState.Success -> {
-            LazyColumn(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                stickyHeader {
-                    Column(modifier = Modifier.background(colors.backgroundColor)) {
-                        ExpensesTotalHeader(uiState.total)
-                        AllExpensesHeader()
-                    }
+            if(uiState.expenses.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = "No expenses found, please add your first expense with the + symbol down below",
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.body1
+                    )
                 }
-                items(uiState.expenses) { expense ->
-                    ExpensesItem(expense = expense, onExpenseClick = onExpenseClick)
+            } else {
+                LazyColumn(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    stickyHeader {
+                        Column(modifier = Modifier.background(colors.backgroundColor)) {
+                            ExpensesTotalHeader(uiState.total)
+                            AllExpensesHeader()
+                        }
+                    }
+                    items(items = uiState.expenses, key = { it.id }) { expense ->
+                        SwipeToDeleteContainer(
+                            item = expense,
+                            onDelete = onDeleteExpense
+                        ) {
+                            ExpensesItem(expense = expense, onExpenseClick = onExpenseClick)
+                        }
+                    }
                 }
             }
         }

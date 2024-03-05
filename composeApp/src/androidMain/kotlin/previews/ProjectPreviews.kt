@@ -50,7 +50,7 @@ fun ExpenseScreenPreview() {
         uiState = ExpensesUiState.Success(
             expenses = ExpenseManager.fakeExpenseList,
             total = 1052.2
-        ), onExpenseClick = {})
+        ), onExpenseClick = {}, onDeleteExpense = {})
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
