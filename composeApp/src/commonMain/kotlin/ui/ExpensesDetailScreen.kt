@@ -48,6 +48,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -59,6 +60,7 @@ import getColorsTheme
 import kotlinx.coroutines.launch
 import model.Expense
 import model.ExpenseCategory
+import utils.EXPENSE_DETAIL_TEST_TAG
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -101,10 +103,13 @@ fun ExpensesDetailScreen(
             }
         }
     ) {
-        Column(modifier = Modifier.fillMaxSize().padding(vertical = 16.dp, horizontal = 16.dp)) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(vertical = 16.dp, horizontal = 16.dp)
+                .testTag(EXPENSE_DETAIL_TEST_TAG)
+        ) {
             ExpenseAmount(
                 priceContent = price,
-                onPriceChange =  {
+                onPriceChange = {
                     price = it
                 },
                 keyboardController = keyboardController
@@ -183,7 +188,7 @@ fun ExpenseAmount(
                 value = text,
                 onValueChange = { newText ->
                     val numericText = newText.filter { it.isDigit() || it == '.' }
-                    text = if(numericText.isNotEmpty() && numericText.count { it == '.'} <= 1) {
+                    text = if (numericText.isNotEmpty() && numericText.count { it == '.' } <= 1) {
                         try {
                             val newValue = numericText.toDouble()
                             onPriceChange(newValue)
@@ -230,7 +235,7 @@ fun ExpenseAmount(
 @Composable
 private fun ExpenseTypeSelector(
     categorySelected: String,
-    openBottomSheet:() -> Unit
+    openBottomSheet: () -> Unit
 ) {
     val colors = getColorsTheme()
 
@@ -285,7 +290,7 @@ fun ExpenseDescription(
         TextField(
             modifier = Modifier.fillMaxWidth(),
             onValueChange = { newText ->
-                if(newText.length <= 200) {
+                if (newText.length <= 200) {
                     text = newText
                     onDescriptionChange(newText)
                 }
